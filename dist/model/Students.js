@@ -34,6 +34,7 @@ const StudentSchema = new mongoose_1.Schema({
     studentGrade: { type: String, default: '' },
     fatherName: { type: String, default: '' },
     uuid: { type: String, default: '' },
+    transactionHash: { type: String, default: '' },
 });
 // Function to generate a random six-digit number
 function generateRandomSixDigitNumber() {

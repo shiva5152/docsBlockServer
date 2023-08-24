@@ -8,7 +8,7 @@ import multer from 'multer'
 import fs from 'fs/promises';
 import path from 'path';
 import pdf from 'pdf-parse'
-import { createReadStream } from 'fs';
+
 
 
 dotenv.config();
@@ -20,7 +20,15 @@ const port = 5000;
 const storage = multer.diskStorage({
   destination: 'uploads/', // Change this to your desired directory
   filename: (req, file, cb) => {
+
     cb(null, file.originalname);
+  }
+});
+const tempStorage = multer.diskStorage({
+  destination: 'uploads/', // Change this to your desired directory
+  filename: (req, file, cb) => {
+
+    cb(null, `temp.pdf`);
   }
 });
 
@@ -99,6 +107,8 @@ app.patch('/api/adduuid/:id', async(req: Request, res: Response) => {
 });
 
 const upload = multer({ storage });
+const temp = multer({ storage:tempStorage });
+
 
 app.post('/api/upload', upload.single('pdf'), (req, res) => {
   console.log('PDF saved:', req?.file?.originalname);
@@ -113,7 +123,7 @@ app.get('/api/downloadPdf/:uuid', async (req, res) => {
   console.log(requestedUUID,pdfDirectory);
 
   try {
-    // Read the directory to get a list of files
+    
     const files = await fs.readdir(pdfDirectory);
     // console.log(files);
 
@@ -168,13 +178,36 @@ app.get('/api/downloadPdf/:uuid', async (req, res) => {
 
     // Stream the file to the response
     const filePath = path.join(pdfDirectory, matchingFile);
-    const fileStream = createReadStream(filePath);
-    fileStream.pipe(res);
+    // const fileStream = createReadStream(filePath);
+    // fileStream.pipe(res);
+    res.download(filePath, matchingFile);
 
   } catch (error) {
     return res.status(500).send(error);
   }
 });
+
+
+app.post('/api/getUuid',temp.single('pdfFile'), async (req, res) => {
+  try {
+    const filePath=pdfDirectory+'/temp.pdf'
+    const pdfBuffer = await fs.readFile(filePath);
+    const data = await pdf(pdfBuffer);
+    const metadata = data.info;
+
+    const student= await Student.findOne({uuid:metadata.Subject})
+    await fs.unlink(filePath);
+    console.log({ uuid: metadata.Subject,transactionHash:"",Author:metadata.Author,CreationDate:metadata.CreationDate });
+   
+   return  res.json({ uuid: metadata.Subject,transactionHash:student?.transactionHash,Author:metadata.Author,CreationDate:metadata.CreationDate });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send(error);
+  }
+
+});
+
 
 
 

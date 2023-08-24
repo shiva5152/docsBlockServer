@@ -22,7 +22,6 @@ const multer_1 = __importDefault(require("multer"));
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const pdf_parse_1 = __importDefault(require("pdf-parse"));
-const fs_1 = require("fs");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
@@ -32,6 +31,12 @@ const storage = multer_1.default.diskStorage({
     destination: 'uploads/',
     filename: (req, file, cb) => {
         cb(null, file.originalname);
+    }
+});
+const tempStorage = multer_1.default.diskStorage({
+    destination: 'uploads/',
+    filename: (req, file, cb) => {
+        cb(null, `temp.pdf`);
     }
 });
 app.get('/', (req, res) => {
@@ -106,6 +111,7 @@ app.patch('/api/adduuid/:id', (req, res) => __awaiter(void 0, void 0, void 0, fu
     }
 }));
 const upload = (0, multer_1.default)({ storage });
+const temp = (0, multer_1.default)({ storage: tempStorage });
 app.post('/api/upload', upload.single('pdf'), (req, res) => {
     var _a;
     console.log('PDF saved:', (_a = req === null || req === void 0 ? void 0 : req.file) === null || _a === void 0 ? void 0 : _a.originalname);
@@ -116,7 +122,6 @@ app.get('/api/downloadPdf/:uuid', (req, res) => __awaiter(void 0, void 0, void 0
     const requestedUUID = req.params.uuid;
     console.log(requestedUUID, pdfDirectory);
     try {
-        // Read the directory to get a list of files
         const files = yield promises_1.default.readdir(pdfDirectory);
         // console.log(files);
         // Find the file with the matching UUID in the metadata
@@ -163,10 +168,27 @@ app.get('/api/downloadPdf/:uuid', (req, res) => __awaiter(void 0, void 0, void 0
         res.setHeader('Content-Type', 'application/pdf');
         // Stream the file to the response
         const filePath = path_1.default.join(pdfDirectory, matchingFile);
-        const fileStream = (0, fs_1.createReadStream)(filePath);
-        fileStream.pipe(res);
+        // const fileStream = createReadStream(filePath);
+        // fileStream.pipe(res);
+        res.download(filePath, matchingFile);
     }
     catch (error) {
+        return res.status(500).send(error);
+    }
+}));
+app.post('/api/getUuid', temp.single('pdfFile'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const filePath = pdfDirectory + '/temp.pdf';
+        const pdfBuffer = yield promises_1.default.readFile(filePath);
+        const data = yield (0, pdf_parse_1.default)(pdfBuffer);
+        const metadata = data.info;
+        const student = yield Students_1.default.findOne({ uuid: metadata.Subject });
+        yield promises_1.default.unlink(filePath);
+        console.log({ uuid: metadata.Subject, transactionHash: "", Author: metadata.Author, CreationDate: metadata.CreationDate });
+        return res.json({ uuid: metadata.Subject, transactionHash: student === null || student === void 0 ? void 0 : student.transactionHash, Author: metadata.Author, CreationDate: metadata.CreationDate });
+    }
+    catch (error) {
+        console.log(error);
         return res.status(500).send(error);
     }
 }));

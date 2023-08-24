@@ -1,0 +1,88 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel&family=Cinzel+Decorative&family=Poppins:wght@200;300;400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body{
+    user-select: none;
+}
+/* blur background */
+.blur-background {
+  backdrop-filter: blur(2.5px); /* Adjust the blur amount as needed */
+  /* Optionally, you can add a fallback background color for browsers that don't support backdrop-filter */
+  background-color: rgba(255, 255, 255, 0); /* Adjust the color and opacity as needed */
+}
+
+/* scroll bar */
+.custom-scrollbar {
+ 
+  /* Set scrollbar color */
+  
+  scrollbar-color: #285aaa lightblue;
+}
+
+/* For WebKit based browsers (like Chrome, Edge) */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+  background-color: lightblue; /* Background color of the scrollbar track */
+  border-radius: 8px; /* Rounded corners */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  
+  background-color: #285aaa; /* Color of the scrollbar thumb */
+  border-radius: 8px; /* Rounded corners */
+}
+
+/* For Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin; /* Width of the scrollbar */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #285aaa; /* Color of the scrollbar thumb */
+  border-radius: 8px; /* Rounded corners */
+}
+
+/* appdiveder */
+.custom-shape-divider-top-1691472220 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.custom-shape-divider-top-1691472220 svg {
+  position: relative;
+  display: block;
+  width: calc(109% + 1.3px);
+  height: 69px;
+}
+
+.custom-shape-divider-top-1691472220 .shape-fill {
+  fill: #4187D8;
+}
+/* bottum app devider */
+.custom-shape-divider-bottom-1691472397 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  transform: rotate(180deg);
+}
+
+.custom-shape-divider-bottom-1691472397 svg {
+  position: relative;
+  display: block;
+  width: calc(125% + 1.3px);
+  height: 62px;
+}
+
+.custom-shape-divider-bottom-1691472397 .shape-fill {
+  fill: #4187D8;
+}
